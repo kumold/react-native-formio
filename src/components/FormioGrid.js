@@ -73,7 +73,8 @@ export default class FormioGrid extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.form !== this.props.form) {
       this.setState({
         columns: this.columnsFromForm(nextProps.form)

@@ -51,7 +51,7 @@ export default class ValueComponent extends BaseComponent {
   componentDidUpdate(prevProps) {
     const {component} = prevProps;
     let value;
-    if (component.hasOwnProperty('calculateValue') && component.calculateValue) {
+    if (Object.prototype.hasOwnProperty.call(component, 'calculateValue') && component.calculateValue) {
       if (!deepEqual(this.data, this.props.data)) {
         this.data = clone(this.props.data);
         try {

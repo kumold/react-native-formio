@@ -3,7 +3,6 @@ import {View, Switch, Text, StyleSheet} from 'react-native';
 import ValueComponent from '../sharedComponents/Value';
 
 export default class SwitchComponent extends ValueComponent {
-
   constructor(props) {
     super(props);
 
@@ -18,17 +17,17 @@ export default class SwitchComponent extends ValueComponent {
 
   getElements() {
     const switchStyle = StyleSheet.create({
+      label: {
+        color: this.props.colors.textColor,
+        fontSize: 15,
+        marginLeft: 10,
+        marginTop: 8,
+      },
       wrapper: {
         flex: 1,
-        marginTop: 10,
+        flexDirection: 'row',
         marginLeft: 20,
-        flexDirection: 'row'
-      },
-      label: {
-        fontSize: 15,
-        marginTop: 8,
-        marginLeft: 10,
-        color: this.props.colors.textColor,
+        marginTop: 10,
       },
     });
 

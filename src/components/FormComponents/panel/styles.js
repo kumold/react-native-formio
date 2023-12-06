@@ -1,6 +1,9 @@
 import {StyleSheet} from  'react-native';
 
 const styles = StyleSheet.create({
+  componentsWrapper: {
+    flex: 1,
+  },
   panel: {
     flex: 1,
     flexDirection: 'column',
@@ -10,9 +13,6 @@ const styles = StyleSheet.create({
   title: {
     alignSelf: 'flex-start',
     margin: 10,
-  },
-  componentsWrapper: {
-    flex: 1,
   },
 });
 

@@ -5,12 +5,12 @@ import PropTypes from 'prop-types';
 export default class BaseComponent extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     // If a new value is set within state, re-render.
-    if (this.state && this.state.hasOwnProperty('value') && this.state.value !== nextState.value) {
+    if (this.state && Object.prototype.hasOwnProperty.call(this.state,'value') && this.state.value !== nextState.value) {
       return true;
     }
 
     // If the pristineness changes without a value change, re-render.
-    if (this.state && this.state.hasOwnProperty('isPristine') && this.state.isPristine !== nextState.isPristine) {
+    if (this.state && Object.prototype.hasOwnProperty.call(this.state, 'isPristine') && this.state.isPristine !== nextState.isPristine) {
       return true;
     }
 
@@ -25,27 +25,27 @@ export default class BaseComponent extends React.Component {
     }
 
     // If component has a custom data source, always recalculate
-    if (this.props.component.hasOwnProperty('refreshOn') && this.props.component.refreshOn) {
+    if (Object.prototype.hasOwnProperty.call(this.props.component,'refreshOn') && this.props.component.refreshOn) {
       return true;
     }
 
-    if (this.state && this.state.hasOwnProperty('searchTerm') && this.state.searchTerm !== nextState.searchTerm) {
+    if (this.state && Object.prototype.hasOwnProperty.call(this.state,'searchTerm') && this.state.searchTerm !== nextState.searchTerm) {
       return true;
     }
 
-    if (this.state && this.state.hasOwnProperty('selectItems') && !deepEqual(this.state.selectItems, nextState.selectItems)) {
+    if (this.state && Object.prototype.hasOwnProperty.call(this.state,'selectItems') && !deepEqual(this.state.selectItems, nextState.selectItems)) {
       return true;
     }
 
-    if (this.state && this.state.hasOwnProperty('open') && this.state.open !== nextState.open) {
+    if (this.state && Object.prototype.hasOwnProperty.call(this.state,'open') && this.state.open !== nextState.open) {
       return true;
     }
 
-    if (this.state && this.state.hasOwnProperty('showSignaturePad') && this.state.showSignaturePad !== nextState.showSignaturePad) {
+    if (this.state && Object.prototype.hasOwnProperty.call(this.state,'showSignaturePad') && this.state.showSignaturePad !== nextState.showSignaturePad) {
       return true;
     }
 
-    if (this.props.component.hasOwnProperty('disableOnInvalid') && this.props.isFormValid !== nextProps.isFormValid) {
+    if (Object.prototype.hasOwnProperty.call(this.props.component,'disableOnInvalid') && this.props.isFormValid !== nextProps.isFormValid) {
       return true;
     }
 

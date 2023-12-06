@@ -1,12 +1,12 @@
-import {StyleSheet} from  'react-native';
+import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
-  header2: {
-    fontSize: 28,
-    margin: 10,
-    lineHeight: 34,
-    letterSpacing: 0.36,
-  }
+    header2: {
+        fontSize: 28,
+        letterSpacing: 0.36,
+        lineHeight: 34,
+        margin: 10,
+    }
 });
 
 export default styles;

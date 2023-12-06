@@ -109,9 +109,9 @@ export default class InputComponent extends MultiComponent {
       },
       input: {
         color: themeStyle.color,
+        flex: 1,
         fontSize: themeStyle.fontSize,
         lineHeight: themeStyle.lineHeight,
-        flex: 1,
         maxWidth: DeviceInfo.isTablet() ? 580 : 210,
       }
     });

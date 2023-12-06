@@ -174,8 +174,8 @@ export default class Formio extends React.Component {
       return;
     }
     delete this.inputs[component.props.component.key];
-    if (!component.props.component.hasOwnProperty('clearOnHide') || component.props.component.clearOnHide !== false) {
-      if (this.data && this.data.hasOwnProperty(component.props.component.key)) {
+    if (!Object.prototype.hasOwnProperty.call(component.props.component,'clearOnHide') || component.props.component.clearOnHide !== false) {
+      if (this.data && Object.prototype.hasOwnProperty.call(this.data,component.props.component.key)) {
         delete this.data[component.props.component.key];
         sendChange = true;
       }
@@ -215,7 +215,7 @@ export default class Formio extends React.Component {
     this.setState({
       isSubmitting: false
     });
-    if (response.hasOwnProperty('name') && response.name === 'ValidationError') {
+    if (Object.prototype.hasOwnProperty.call(response, 'name') && response.name === 'ValidationError') {
       response.details.forEach(this.setInputsErrorMessage);
     }
     else {
@@ -256,10 +256,10 @@ export default class Formio extends React.Component {
 
   onChange(component, context={}) {
     // Datagrids and containers are different.
-    if (context.hasOwnProperty('datagrid')) {
+    if (Object.prototype.hasOwnProperty.call(context, 'datagrid')) {
       this.data[context.datagrid.props.component.key] = context.datagrid.state.value;
     }
-    else if (context.hasOwnProperty('container')) {
+    else if (Object.prototype.hasOwnProperty.call(context, 'container')) {
       this.data[context.container.props.component.key] = context.container.state.value;
     }
     else {
@@ -298,25 +298,25 @@ export default class Formio extends React.Component {
   }
 
   clearHiddenData(component) {
-    if (!component.hasOwnProperty('clearOnHide') || component.clearOnHide !== false) {
-      if (this.data.hasOwnProperty(component.key)) {
+    if (!Object.prototype.hasOwnProperty.call(component, 'clearOnHide') || component.clearOnHide !== false) {
+      if (Object.prototype.hasOwnProperty.call(this.data, component.key)) {
         delete this.data[component.key];
         this.externalChange({props: {component}, state: {isPristine: true, value: null}});
       }
     }
-    if (component.hasOwnProperty('components')) {
+    if (Object.prototype.hasOwnProperty.call(component, 'components')) {
       component.components.forEach(component => {
         this.clearHiddenData(component);
       });
     }
-    if (component.hasOwnProperty('columns')) {
+    if (Object.prototype.hasOwnProperty.call(component, 'columns')) {
       component.columns.forEach(column => {
         column.components.forEach(component => {
           this.clearHiddenData(component);
         });
       });
     }
-    if (component.hasOwnProperty('rows') && Array.isArray(component.rows)) {
+    if (Object.prototype.hasOwnProperty.call(component, 'rows') && Array.isArray(component.rows)) {
       component.rows.forEach(column => {
         column.forEach(component => {
           this.clearHiddenData(component);
@@ -463,37 +463,37 @@ export default class Formio extends React.Component {
     const {isLoading} = this.state;
 
     const style = StyleSheet.create({
+      alertsWrapper: {
+        alignItems: 'center',
+        flex: 1,
+      },
+      contentContainerStyle: {
+        paddingBottom: 30,
+      },
+      errorText: {
+        color: this.props.colors.errorColor,
+        fontSize: 14,
+      },
       formWrapper: {
         flex: 1,
         ...this.props.theme.Main,
         ...this.props.style,
       },
-      contentContainerStyle: {
-        paddingBottom: 30,
+      loading: {
+        alignItems: 'center',
+        flex: 1,
+        height: 80,
+        justifyContent: 'center',
       },
       loadingContainer: {
+        alignItems: 'center',
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
-      },
-      loading: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: 80
-      },
-      alertsWrapper: {
-        flex: 1,
-        alignItems: 'center'
       },
       successText: {
-        fontSize: 14,
         color: this.props.colors.successColor,
-      },
-     errorText: {
         fontSize: 14,
-        color: this.props.colors.errorColor,
-      }
+      },
     });
 
     if (isLoading) {

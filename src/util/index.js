@@ -3,38 +3,38 @@ import has from 'lodash/has';
 import isEqual from 'lodash/isEqual';
 
 function defineTransformerOutsideStrictMode() {
-  var safeGlobalName = '____formioSelectMixinGetTransformer';
-  var globalObject = typeof global !== 'undefined' ? global : {};
+    var safeGlobalName = '____formioSelectMixinGetTransformer';
+    var globalObject = typeof global !== 'undefined' ? global : {};
 
-  /* We are essentially doing this, but because we're in strict mode by default in all babeled
-   * modules, we need to escape it
-   *
-   * //string-replace callback, called for every match in the template.
-   * function transform (_, expression) {
-   *  //bring the properties of 'props' into local scope so that the expression can reference them
-   *  with (props) {
-   *    return eval(expression); //evaluate the expression.
-   *  }
-   * }
-   */
+    /* We are essentially doing this, but because we're in strict mode by default in all babeled
+     * modules, we need to escape it
+     *
+     * //string-replace callback, called for every match in the template.
+     * function transform (_, expression) {
+     *  //bring the properties of 'props' into local scope so that the expression can reference them
+     *  with (props) {
+     *    return eval(expression); //evaluate the expression.
+     *  }
+     * }
+     */
 
-  // This escapes strict mode.
-  try {
-    (1,eval)('function '+safeGlobalName+' (props) { return function (_, exp) { with(props) { return eval(exp); } } }');
-  }
-  catch (error) {
-    return '';
-  }
+    // This escapes strict mode.
+    try {
+        (1, eval)('function ' + safeGlobalName + ' (props) { return function (_, exp) { with(props) { return eval(exp); } } }');
+    }
+    catch (error) {
+        return '';
+    }
 
-  var ret = eval(safeGlobalName);
+    var ret = eval(safeGlobalName);
 
-  // Cleanup
-  // This can throw errors in some versions of IE for unknown reasons at this time.
-  if (globalObject[safeGlobalName]) {
-    delete globalObject[safeGlobalName];
-  }
+    // Cleanup
+    // This can throw errors in some versions of IE for unknown reasons at this time.
+    if (globalObject[safeGlobalName]) {
+        delete globalObject[safeGlobalName];
+    }
 
-  return ret;
+    return ret;
 }
 
 var getTransformer = defineTransformerOutsideStrictMode();
@@ -51,14 +51,14 @@ var getTransformer = defineTransformerOutsideStrictMode();
  * @returns {string|XML|*|void}
  */
 export const interpolate = (template, variables) => {
-  var transform = getTransformer(variables);
-  //find all {{ }} expression blocks and then replace the blocks with their evaluation.
-  try {
-    return template.replace(/\{\s*\{([^\}]*)\}\s*\}/gm, transform);
-  }
-  catch (error) {
-    return '';
-  }
+    var transform = getTransformer(variables);
+    //find all {{ }} expression blocks and then replace the blocks with their evaluation.
+    try {
+        return template.replace(/\{\s*\{([^}]*)}\s*}/gm, transform);
+    }
+    catch (error) {
+        return '';
+    }
 };
 
 /**
@@ -67,46 +67,46 @@ export const interpolate = (template, variables) => {
  * @returns {string}
  */
 export const serialize = obj => {
-  var str = [];
-  for (var p in obj) {
-    if (obj.hasOwnProperty(p)) {
-      str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+    var str = [];
+    for (var p in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, p)) {
+            str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+        }
     }
-  }
-  return str.join('&');
+    return str.join('&');
 };
 
 //helper function to render raw html under a react element.
 export const raw = function(html) {
-  return {dangerouslySetInnerHTML: {__html: html}};
+    return {dangerouslySetInnerHTML: {__html: html}};
 };
 
 export const fileSize = function(a, b, c, d, e) {
-  /* eslint-disable space-before-function-paren */
-  return (b = Math, c = b.log, d = 1024, e = c(a) / c(d) | 0, a / b.pow(d, e)).toFixed(2) + ' ' + (e ? 'kMGTPEZY'[--e] + 'B' : 'Bytes');
+    /* eslint-disable space-before-function-paren */
+    return (b = Math, c = b.log, d = 1024, e = c(a) / c(d) | 0, a / b.pow(d, e)).toFixed(2) + ' ' + (e ? 'kMGTPEZY'[--e] + 'B' : 'Bytes');
 };
 
 // Resolve nested values within an array.
-export const nested = function({rowData, column}) {
-  const {property} = column;
+export const nested = function ({rowData, column}) {
+    const {property} = column;
 
-  if (!property) {
-    return {};
-  }
+    if (!property) {
+        return {};
+    }
 
-  if (!has(rowData, property)) {
-    //console.warn( // eslint-disable-line no-console
-    //  `resolve.nested - Failed to find "${property}" property from`,
-    //  rowData
-    //);
+    if (!has(rowData, property)) {
+        //console.warn( // eslint-disable-line no-console
+        //  `resolve.nested - Failed to find "${property}" property from`,
+        //  rowData
+        //);
 
-    return {};
-  }
+        return {};
+    }
 
-  return {
-    ...rowData,
-    [property]: get(rowData, property)
-  };
+    return {
+        ...rowData,
+        [property]: get(rowData, property)
+    };
 };
 
 export const deepEqual = isEqual;

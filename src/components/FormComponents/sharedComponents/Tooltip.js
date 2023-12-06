@@ -7,14 +7,14 @@ import {Icon} from 'react-native-elements';
 const Tooltip = (props) => {
   const customStyles = props.styles || {};
   const styles = StyleSheet.create({
-    tooltipText: {
-      flexWrap: 'wrap',
-      color: props.color,
-    },
     tooltipIcon: {
       marginLeft: -20,
       marginTop: 13,
       ...customStyles.icon
+    },
+    tooltipText: {
+      color: props.color,
+      flexWrap: 'wrap',
     },
   });
   return (

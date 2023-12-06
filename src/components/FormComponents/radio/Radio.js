@@ -5,7 +5,6 @@ import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-
 import styles from './styles';
 
 export default class Radio extends InputComponent {
-
   constructor(props) {
     super(props);
 
@@ -49,7 +48,7 @@ export default class Radio extends InputComponent {
   getSingleElement(value, index) {
     index = index || 0;
     let key = this.props.component.key;
-    if (this.props.hasOwnProperty('rowIndex')) {
+    if (Object.prototype.hasOwnProperty.call(this.props, 'rowIndex')) {
       key += '-' + this.props.rowIndex;
     }
 

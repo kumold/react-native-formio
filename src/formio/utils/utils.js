@@ -8,17 +8,17 @@ lodashOperators.forEach((name) => jsonLogic.add_operation(`_${name}`, _[name]));
 
 // Retrieve Any Date
 jsonLogic.add_operation('getDate', (date) => {
-  return moment(date).toISOString();
+    return moment(date).toISOString();
 });
 
 // Set Relative Minimum Date
 jsonLogic.add_operation('relativeMinDate', (relativeMinDate) => {
-  return moment().subtract(relativeMinDate, 'days').toISOString();
+    return moment().subtract(relativeMinDate, 'days').toISOString();
 });
 
 // Set Relative Maximum Date
 jsonLogic.add_operation('relativeMaxDate', (relativeMaxDate) => {
-  return moment().add(relativeMaxDate, 'days').toISOString();
+    return moment().add(relativeMaxDate, 'days').toISOString();
 });
 
 export {jsonLogic};
@@ -31,68 +31,68 @@ export {jsonLogic};
  * @return {*}
  */
 export function evaluate(func, args, ret, tokenize) {
-  let returnVal = null;
-  const component = args.component ? args.component : {key: 'unknown'};
-  if (!args.form && args.instance) {
-    args.form = _.get(args.instance, 'root._form', {});
-  }
-  if (typeof func === 'string') {
-    if (ret) {
-      func += `;return ${ret}`;
+    let returnVal = null;
+    const component = args.component ? args.component : {key: 'unknown'};
+    if (!args.form && args.instance) {
+        args.form = _.get(args.instance, 'root._form', {});
     }
-    const params = _.keys(args);
-
-    if (tokenize) {
-      // Replace all {{ }} references with actual data.
-      func = func.replace(/({{\s+(.*)\s+}})/, (match, $1, $2) => {
-        if ($2.indexOf('data.') === 0) {
-          return _.get(args.data, $2.replace('data.', ''));
+    if (typeof func === 'string') {
+        if (ret) {
+            func += `;return ${ret}`;
         }
-        else if ($2.indexOf('row.') === 0) {
-          return _.get(args.row, $2.replace('row.', ''));
+        const params = _.keys(args);
+
+        if (tokenize) {
+            // Replace all {{ }} references with actual data.
+            func = func.replace(/({{\s+(.*)\s+}})/, (match, $1, $2) => {
+                if ($2.indexOf('data.') === 0) {
+                    return _.get(args.data, $2.replace('data.', ''));
+                }
+                else if ($2.indexOf('row.') === 0) {
+                    return _.get(args.row, $2.replace('row.', ''));
+                }
+
+                // Support legacy...
+                return _.get(args.data, $2);
+            });
         }
 
-        // Support legacy...
-        return _.get(args.data, $2);
-      });
+        try {
+            func = new Function(...params, func);
+        }
+        catch (err) {
+            console.warn(`An error occured within the custom function for ${component.key}`, err); //eslint-disable-line no-console
+            returnVal = null;
+            func = false;
+        }
     }
-
-    try {
-      func = new Function(...params, func);
+    if (typeof func === 'function') {
+        const values = _.values(args);
+        try {
+            returnVal = func(...values);
+        }
+        catch (err) {
+            returnVal = null;
+            console.warn(`An error occured within custom function for ${component.key}`, err); //eslint-disable-line no-console
+        }
     }
-    catch (err) {
-      console.warn(`An error occured within the custom function for ${component.key}`, err); //eslint-disable-line no-console
-      returnVal = null;
-      func = false;
+    else if (typeof func === 'object') {
+        try {
+            returnVal = jsonLogic.apply(func, args);
+        }
+        catch (err) {
+            returnVal = null;
+            console.warn(`An error occured within custom function for ${component.key}`, err); //eslint-disable-line no-console
+        }
     }
-  }
-  if (typeof func === 'function') {
-    const values = _.values(args);
-    try {
-      returnVal = func(...values);
+    else if (func) {
+        console.warn(`Unknown function type for ${component.key}`); //eslint-disable-line no-console
     }
-    catch (err) {
-      returnVal = null;
-      console.warn(`An error occured within custom function for ${component.key}`, err); //eslint-disable-line no-console
-    }
-  }
-  else if (typeof func === 'object') {
-    try {
-      returnVal = jsonLogic.apply(func, args);
-    }
-    catch (err) {
-      returnVal = null;
-      console.warn(`An error occured within custom function for ${component.key}`, err); //eslint-disable-line no-console
-    }
-  }
-  else if (func) {
-    console.warn(`Unknown function type for ${component.key}`); //eslint-disable-line no-console
-  }
-  return returnVal;
+    return returnVal;
 }
 
 export function getRandomComponentId() {
-  return `e${Math.random().toString(36).substring(7)}`;
+    return `e${Math.random().toString(36).substring(7)}`;
 }
 
 /**
@@ -103,9 +103,9 @@ export function getRandomComponentId() {
  * @return {number}
  */
 export function getPropertyValue(style, prop) {
-  let value = style.getPropertyValue(prop);
-  value = value ? value.replace(/[^0-9.]/g, '') : '0';
-  return parseFloat(value);
+    let value = style.getPropertyValue(prop);
+    value = value ? value.replace(/[^0-9.]/g, '') : '0';
+    return parseFloat(value);
 }
 
 /**
@@ -115,13 +115,13 @@ export function getPropertyValue(style, prop) {
  * @return {{x: string, y: string, width: string, height: string}}
  */
 export function getElementRect(element) {
-  const style = global.getComputedStyle(element, null);
-  return {
-    x: getPropertyValue(style, 'left'),
-    y: getPropertyValue(style, 'top'),
-    width: getPropertyValue(style, 'width'),
-    height: getPropertyValue(style, 'height')
-  };
+    const style = global.getComputedStyle(element, null);
+    return {
+        x: getPropertyValue(style, 'left'),
+        y: getPropertyValue(style, 'top'),
+        width: getPropertyValue(style, 'width'),
+        height: getPropertyValue(style, 'height')
+    };
 }
 
 /**
@@ -131,15 +131,15 @@ export function getElementRect(element) {
  * @return {boolean}
  */
 export function boolValue(value) {
-  if (_.isBoolean(value)) {
-    return value;
-  }
-  else if (_.isString(value)) {
-    return (value.toLowerCase() === 'true');
-  }
-  else {
-    return !!value;
-  }
+    if (_.isBoolean(value)) {
+        return value;
+    }
+    else if (_.isString(value)) {
+        return (value.toLowerCase() === 'true');
+    }
+    else {
+        return !!value;
+    }
 }
 
 /**
@@ -148,7 +148,7 @@ export function boolValue(value) {
  * @return {Array|{index: number, input: string}|Boolean|*}
  */
 export function isMongoId(text) {
-  return text.toString().match(/^[0-9a-fA-F]{24}$/);
+    return text.toString().match(/^[0-9a-fA-F]{24}$/);
 }
 
 /**
@@ -161,11 +161,11 @@ export function isMongoId(text) {
  *   Whether or not the component is a layout component.
  */
 export function isLayoutComponent(component) {
-  return Boolean(
-    (component.columns && Array.isArray(component.columns)) ||
-    (component.rows && Array.isArray(component.rows)) ||
-    (component.components && Array.isArray(component.components))
-  );
+    return Boolean(
+        (component.columns && Array.isArray(component.columns)) ||
+        (component.rows && Array.isArray(component.rows)) ||
+        (component.components && Array.isArray(component.components))
+    );
 }
 
 /**
@@ -183,69 +183,67 @@ export function isLayoutComponent(component) {
  *   The parent object.
  */
 export function eachComponent(components, fn, includeAll, path, parent) {
-  if (!components) return;
-  path = path || '';
-  components.forEach((component) => {
-    const hasColumns = component.columns && Array.isArray(component.columns);
-    const hasRows = component.rows && Array.isArray(component.rows);
-    const hasComps = component.components && Array.isArray(component.components);
-    let noRecurse = false;
-    const newPath = component.key ? (path ? (`${path}.${component.key}`) : component.key) : '';
+    if (!components) return;
+    path = path || '';
+    components.forEach((component) => {
+        const hasColumns = component.columns && Array.isArray(component.columns);
+        const hasRows = component.rows && Array.isArray(component.rows);
+        const hasComps = component.components && Array.isArray(component.components);
+        let noRecurse = false;
+        const newPath = component.key ? (path ? (`${path}.${component.key}`) : component.key) : '';
 
-    // Keep track of parent references.
-    if (parent) {
-      // Ensure we don't create infinite JSON structures.
-      component.parent = _.clone(parent);
-      delete component.parent.components;
-      delete component.parent.componentMap;
-      delete component.parent.columns;
-      delete component.parent.rows;
-    }
+        // Keep track of parent references.
+        if (parent) {
+            // Ensure we don't create infinite JSON structures.
+            component.parent = _.clone(parent);
+            delete component.parent.components;
+            delete component.parent.componentMap;
+            delete component.parent.columns;
+            delete component.parent.rows;
+        }
 
-    if (includeAll || component.tree || (!hasColumns && !hasRows && !hasComps)) {
-      noRecurse = fn(component, newPath);
-    }
+        if (includeAll || component.tree || (!hasColumns && !hasRows && !hasComps)) {
+            noRecurse = fn(component, newPath);
+        }
 
-    const subPath = () => {
-      if (
-        component.key &&
-        !['panel', 'table', 'well', 'columns', 'fieldset', 'tabs', 'form'].includes(component.type) &&
-        (
-          ['datagrid', 'container', 'editgrid'].includes(component.type) ||
-          component.tree
-        )
-      ) {
-        return newPath;
-      }
-      else if (
-        component.key &&
-        component.type === 'form'
-      ) {
-        return `${newPath}.data`;
-      }
-      return path;
-    };
+        const subPath = () => {
+            if (
+                component.key &&
+                !['panel', 'table', 'well', 'columns', 'fieldset', 'tabs', 'form'].includes(component.type) &&
+                (
+                    ['datagrid', 'container', 'editgrid'].includes(component.type) ||
+                    component.tree
+                )
+            ) {
+                return newPath;
+            }
+            else if (
+                component.key &&
+                component.type === 'form'
+            ) {
+                return `${newPath}.data`;
+            }
+            return path;
+        };
 
-    if (!noRecurse) {
-      if (hasColumns) {
-        component.columns.forEach((column) =>
-          eachComponent(column.components, fn, includeAll, subPath(), parent ? component : null));
-      }
-
-      else if (hasRows) {
-        component.rows.forEach((row) => {
-          if (Array.isArray(row)) {
-            row.forEach((column) =>
-              eachComponent(column.components, fn, includeAll, subPath(), parent ? component : null));
-          }
-        });
-      }
-
-      else if (hasComps) {
-        eachComponent(component.components, fn, includeAll, subPath(), parent ? component : null);
-      }
-    }
-  });
+        if (!noRecurse) {
+            if (hasColumns) {
+                component.columns.forEach((column) =>
+                    eachComponent(column.components, fn, includeAll, subPath(), parent ? component : null));
+            }
+            else if (hasRows) {
+                component.rows.forEach((row) => {
+                    if (Array.isArray(row)) {
+                        row.forEach((column) =>
+                            eachComponent(column.components, fn, includeAll, subPath(), parent ? component : null));
+                    }
+                });
+            }
+            else if (hasComps) {
+                eachComponent(component.components, fn, includeAll, subPath(), parent ? component : null);
+            }
+        }
+    });
 }
 
 /**
@@ -256,19 +254,19 @@ export function eachComponent(components, fn, includeAll, path, parent) {
  * @return {boolean}
  */
 export function matchComponent(component, query) {
-  if (_.isString(query)) {
-    return component.key === query;
-  }
-  else {
-    let matches = false;
-    _.forOwn(query, (value, key) => {
-      matches = (_.get(component, key) === value);
-      if (!matches) {
-        return false;
-      }
-    });
-    return matches;
-  }
+    if (_.isString(query)) {
+        return component.key === query;
+    }
+    else {
+        let matches = false;
+        _.forOwn(query, (value, key) => {
+            matches = (_.get(component, key) === value);
+            if (!matches) {
+                return false;
+            }
+        });
+        return matches;
+    }
 }
 
 /**
@@ -283,15 +281,15 @@ export function matchComponent(component, query) {
  *   The component that matches the given key, or undefined if not found.
  */
 export function getComponent(components, key, includeAll) {
-  let result;
-  eachComponent(components, (component, path) => {
-    if (path === key) {
-      component.path = path;
-      result = component;
-      return true;
-    }
-  }, includeAll);
-  return result;
+    let result;
+    eachComponent(components, (component, path) => {
+        if (path === key) {
+            component.path = path;
+            result = component;
+            return true;
+        }
+    }, includeAll);
+    return result;
 }
 
 /**
@@ -302,14 +300,14 @@ export function getComponent(components, key, includeAll) {
  * @return {*}
  */
 export function findComponents(components, query) {
-  const results = [];
-  eachComponent(components, (component, path) => {
-    if (matchComponent(component, query)) {
-      component.path = path;
-      results.push(component);
-    }
-  }, true);
-  return results;
+    const results = [];
+    eachComponent(components, (component, path) => {
+        if (matchComponent(component, query)) {
+            component.path = path;
+            results.push(component);
+        }
+    }, true);
+    return results;
 }
 
 /**
@@ -324,11 +322,11 @@ export function findComponents(components, query) {
  *   The flattened components map.
  */
 export function flattenComponents(components, includeAll) {
-  const flattened = {};
-  eachComponent(components, (component, path) => {
-    flattened[path] = component;
-  }, includeAll);
-  return flattened;
+    const flattened = {};
+    eachComponent(components, (component, path) => {
+        flattened[path] = component;
+    }, includeAll);
+    return flattened;
 }
 
 /**
@@ -339,11 +337,11 @@ export function flattenComponents(components, includeAll) {
  * @returns {boolean} - TRUE - This component has a conditional, FALSE - No conditional provided.
  */
 export function hasCondition(component) {
-  return Boolean(
-    (component.customConditional) ||
-    (component.conditional && component.conditional.when) ||
-    (component.conditional && component.conditional.json)
-  );
+    return Boolean(
+        (component.customConditional) ||
+        (component.conditional && component.conditional.when) ||
+        (component.conditional && component.conditional.json)
+    );
 }
 
 /**
@@ -356,9 +354,9 @@ export function hasCondition(component) {
  *   Parsed value.
  */
 export function parseFloatExt(value) {
-  return parseFloat(_.isString(value)
-    ? value.replace(/[^\de.+-]/gi, '')
-    : value);
+    return parseFloat(_.isString(value)
+        ? value.replace(/[^\de.+-]/gi, '')
+        : value);
 }
 
 /**
@@ -371,23 +369,23 @@ export function parseFloatExt(value) {
  *   Value formatted for Currency component.
  */
 export function formatAsCurrency(value) {
-  const parsedValue = parseFloatExt(value);
+    const parsedValue = parseFloatExt(value);
 
-  if (_.isNaN(parsedValue)) {
-    return '';
-  }
+    if (_.isNaN(parsedValue)) {
+        return '';
+    }
 
-  const parts = _.round(parsedValue, 2)
-    .toString()
-    .split('.');
-  parts[0] = _.chunk(Array.from(parts[0]).reverse(), 3)
-    .reverse()
-    .map((part) => part
-      .reverse()
-      .join(''))
-    .join(',');
-  parts[1] = _.pad(parts[1], 2, '0');
-  return parts.join('.');
+    const parts = _.round(parsedValue, 2)
+        .toString()
+        .split('.');
+    parts[0] = _.chunk(Array.from(parts[0]).reverse(), 3)
+        .reverse()
+        .map((part) => part
+            .reverse()
+            .join(''))
+        .join(',');
+    parts[1] = _.pad(parts[1], 2, '0');
+    return parts.join('.');
 }
 
 /**
@@ -399,7 +397,7 @@ export function formatAsCurrency(value) {
  *   String with escaped RegEx characters.
  */
 export function escapeRegExCharacters(value) {
-  return value.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
+    return value.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
 }
 
 /**
@@ -413,16 +411,16 @@ export function escapeRegExCharacters(value) {
  *   The full submission data.
  */
 export function checkCalculated(component, submission, rowData) {
-  // Process calculated value stuff if present.
-  if (component.calculateValue) {
-    _.set(rowData, component.key, evaluate(component.calculateValue, {
-      value: undefined,
-      data: submission ? submission.data : rowData,
-      row: rowData,
-      util: this,
-      component
-    }, 'value'));
-  }
+    // Process calculated value stuff if present.
+    if (component.calculateValue) {
+        _.set(rowData, component.key, evaluate(component.calculateValue, {
+            value: undefined,
+            data: submission ? submission.data : rowData,
+            row: rowData,
+            util: this,
+            component
+        }, 'value'));
+    }
 }
 
 /**
@@ -435,27 +433,27 @@ export function checkCalculated(component, submission, rowData) {
  * @returns {boolean}
  */
 export function checkSimpleConditional(component, condition, row, data) {
-  let value = null;
-  if (row) {
-    value = getValue({data: row}, condition.when);
-  }
-  if (data && _.isNil(value)) {
-    value = getValue({data: data}, condition.when);
-  }
-  // FOR-400 - Fix issue where falsey values were being evaluated as show=true
-  if (_.isNil(value)) {
-    value = '';
-  }
-  // Special check for selectboxes component.
-  if (_.isObject(value) && _.has(value, condition.eq)) {
-    return value[condition.eq].toString() === condition.show.toString();
-  }
-  // FOR-179 - Check for multiple values.
-  if (Array.isArray(value) && value.includes(condition.eq)) {
-    return (condition.show.toString() === 'true');
-  }
+    let value = null;
+    if (row) {
+        value = getValue({data: row}, condition.when);
+    }
+    if (data && _.isNil(value)) {
+        value = getValue({data: data}, condition.when);
+    }
+    // FOR-400 - Fix issue where falsey values were being evaluated as show=true
+    if (_.isNil(value)) {
+        value = '';
+    }
+    // Special check for selectboxes component.
+    if (_.isObject(value) && _.has(value, condition.eq)) {
+        return value[condition.eq].toString() === condition.show.toString();
+    }
+    // FOR-179 - Check for multiple values.
+    if (Array.isArray(value) && value.includes(condition.eq)) {
+        return (condition.show.toString() === 'true');
+    }
 
-  return (value.toString() === condition.eq.toString()) === (condition.show.toString() === 'true');
+    return (value.toString() === condition.eq.toString()) === (condition.show.toString() === 'true');
 }
 
 /**
@@ -468,31 +466,31 @@ export function checkSimpleConditional(component, condition, row, data) {
  * @returns {*}
  */
 export function checkCustomConditional(component, custom, row, data, form, variable, onError, instance) {
-  if (typeof custom === 'string') {
-    custom = `var ${variable} = true; ${custom}; return ${variable};`;
-  }
-  const value = (instance && instance.evaluate) ?
-    instance.evaluate(custom) :
-    evaluate(custom, {row, data, form});
-  if (value === null) {
-    return onError;
-  }
-  return value;
+    if (typeof custom === 'string') {
+        custom = `var ${variable} = true; ${custom}; return ${variable};`;
+    }
+    const value = (instance && instance.evaluate) ?
+        instance.evaluate(custom) :
+        evaluate(custom, {row, data, form});
+    if (value === null) {
+        return onError;
+    }
+    return value;
 }
 
 export function checkJsonConditional(component, json, row, data, form, onError) {
-  try {
-    return jsonLogic.apply(json, {
-      data,
-      row,
-      form,
-      _
-    });
-  }
-  catch (err) {
-    console.warn(`An error occurred in jsonLogic advanced condition for ${component.key}`, err); //eslint-disable-line no-console
-    return onError;
-  }
+    try {
+        return jsonLogic.apply(json, {
+            data,
+            row,
+            form,
+            _
+        });
+    }
+    catch (err) {
+        console.warn(`An error occurred in jsonLogic advanced condition for ${component.key}`, err); //eslint-disable-line no-console
+        return onError;
+    }
 }
 
 /**
@@ -508,18 +506,18 @@ export function checkJsonConditional(component, json, row, data, form, onError) 
  * @returns {boolean}
  */
 export function checkCondition(component, row, data, form, instance) {
-  if (component.customConditional) {
-    return checkCustomConditional(component, component.customConditional, row, data, form, 'show', true, instance);
-  }
-  else if (component.conditional && component.conditional.when) {
-    return checkSimpleConditional(component, component.conditional, row, data, true);
-  }
-  else if (component.conditional && component.conditional.json) {
-    return checkJsonConditional(component, component.conditional.json, row, data, form, instance);
-  }
+    if (component.customConditional) {
+        return checkCustomConditional(component, component.customConditional, row, data, form, 'show', true, instance);
+    }
+    else if (component.conditional && component.conditional.when) {
+        return checkSimpleConditional(component, component.conditional, row, data, true);
+    }
+    else if (component.conditional && component.conditional.json) {
+        return checkJsonConditional(component, component.conditional.json, row, data, form, instance);
+    }
 
-  // Default to show.
-  return true;
+    // Default to show.
+    return true;
 }
 
 /**
@@ -532,42 +530,42 @@ export function checkCondition(component, row, data, form, instance) {
  * @returns {mixed}
  */
 export function checkTrigger(component, trigger, row, data, form, instance) {
-  switch (trigger.type) {
-    case 'simple':
-      return checkSimpleConditional(component, trigger.simple, row, data);
-    case 'javascript':
-      return checkCustomConditional(component, trigger.javascript, row, data, form, 'result', false, instance);
-    case 'json':
-      return checkJsonConditional(component, trigger.json, row, data, form, false);
-  }
-  // If none of the types matched, don't fire the trigger.
-  return false;
+    switch (trigger.type) {
+        case 'simple':
+            return checkSimpleConditional(component, trigger.simple, row, data);
+        case 'javascript':
+            return checkCustomConditional(component, trigger.javascript, row, data, form, 'result', false, instance);
+        case 'json':
+            return checkJsonConditional(component, trigger.json, row, data, form, false);
+    }
+    // If none of the types matched, don't fire the trigger.
+    return false;
 }
 
 export function setActionProperty(component, action, row, data, result, instance) {
-  switch (action.property.type) {
-    case 'boolean':
-      if (_.get(component, action.property.value, false).toString() !== action.state.toString()) {
-        _.set(component, action.property.value, action.state.toString() === 'true');
-      }
-      break;
-    case 'string': {
-      const evalData = {
-        data,
-        row,
-        component,
-        result
-      };
-      const newValue = (instance && instance.interpolate) ?
-        instance.interpolate(action.text, evalData) :
-        interpolate(action.text, evalData);
-      if (newValue !== _.get(component, action.property.value, '')) {
-        _.set(component, action.property.value, newValue);
-      }
-      break;
+    switch (action.property.type) {
+        case 'boolean':
+            if (_.get(component, action.property.value, false).toString() !== action.state.toString()) {
+                _.set(component, action.property.value, action.state.toString() === 'true');
+            }
+            break;
+        case 'string': {
+            const evalData = {
+                data,
+                row,
+                component,
+                result
+            };
+            const newValue = (instance && instance.interpolate) ?
+                instance.interpolate(action.text, evalData) :
+                interpolate(action.text, evalData);
+            if (newValue !== _.get(component, action.property.value, '')) {
+                _.set(component, action.property.value, newValue);
+            }
+            break;
+        }
     }
-  }
-  return component;
+    return component;
 }
 
 /**
@@ -579,30 +577,30 @@ export function setActionProperty(component, action, row, data, result, instance
  *   A for components API key to search for.
  */
 export function getValue(submission, key) {
-  const search = (data) => {
-    if (_.isPlainObject(data)) {
-      if (_.has(data, key)) {
-        return data[key];
-      }
+    const search = (data) => {
+        if (_.isPlainObject(data)) {
+            if (_.has(data, key)) {
+                return data[key];
+            }
 
-      let value = null;
+            let value = null;
 
-      _.forOwn(data, (prop) => {
-        const result = search(prop);
-        if (!_.isNil(result)) {
-          value = result;
-          return false;
+            _.forOwn(data, (prop) => {
+                const result = search(prop);
+                if (!_.isNil(result)) {
+                    value = result;
+                    return false;
+                }
+            });
+
+            return value;
         }
-      });
+        else {
+            return null;
+        }
+    };
 
-      return value;
-    }
-    else {
-      return null;
-    }
-  };
-
-  return search(submission.data);
+    return search(submission.data);
 }
 
 /**
@@ -613,17 +611,17 @@ export function getValue(submission, key) {
  * @returns {XML|string|*|void}
  */
 export function interpolate(string, data) {
-  const templateSettings = {
-    evaluate: /\{%(.+?)%\}/g,
-    interpolate: /\{\{(.+?)\}\}/g,
-    escape: /\{\{\{(.+?)\}\}\}/g
-  };
-  try {
-    return _.template(string, templateSettings)(data);
-  }
-  catch (err) {
-    console.warn('Error interpolating template', err, string, data); //eslint-disable-line no-console
-  }
+    const templateSettings = {
+        evaluate: /\{%(.+?)%\}/g,
+        interpolate: /\{\{(.+?)\}\}/g,
+        escape: /\{\{\{(.+?)\}\}\}/g
+    };
+    try {
+        return _.template(string, templateSettings)(data);
+    }
+    catch (err) {
+        console.warn('Error interpolating template', err, string, data); //eslint-disable-line no-console
+    }
 }
 
 /**
@@ -632,22 +630,22 @@ export function interpolate(string, data) {
  * @returns {string}
  */
 export function uniqueName(name) {
-  const parts = name.toLowerCase().replace(/[^0-9a-z.]/g, '').split('.');
-  const fileName = parts[0];
-  const ext = parts.length > 1
-    ? `.${_.last(parts)}`
-    : '';
-  return `${fileName.substr(0, 10)}-${guid()}${ext}`;
+    const parts = name.toLowerCase().replace(/[^0-9a-z.]/g, '').split('.');
+    const fileName = parts[0];
+    const ext = parts.length > 1
+        ? `.${_.last(parts)}`
+        : '';
+    return `${fileName.substr(0, 10)}-${guid()}${ext}`;
 }
 
 export function guid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = Math.random()*16|0;
-    const v = c === 'x'
-      ? r
-      : (r&0x3|0x8);
-    return v.toString(16);
-  });
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x'
+            ? r
+            : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
 
 /**
@@ -657,65 +655,65 @@ export function guid() {
  * @return {*}
  */
 export function getDateSetting(date) {
-  if (_.isNil(date) || _.isNaN(date) || date === '') {
-    return null;
-  }
+    if (_.isNil(date) || _.isNaN(date) || date === '') {
+        return null;
+    }
 
-  if (date instanceof Date) {
-    return date;
-  }
-  else if (typeof date.toDate === 'function') {
-    return date.isValid() ? date.toDate() : null;
-  }
+    if (date instanceof Date) {
+        return date;
+    }
+    else if (typeof date.toDate === 'function') {
+        return date.isValid() ? date.toDate() : null;
+    }
 
-  let dateSetting = ((typeof date !== 'string') || (date.indexOf('moment(') === -1)) ? moment(date) : null;
-  if (dateSetting && dateSetting.isValid()) {
+    let dateSetting = ((typeof date !== 'string') || (date.indexOf('moment(') === -1)) ? moment(date) : null;
+    if (dateSetting && dateSetting.isValid()) {
+        return dateSetting.toDate();
+    }
+
+    dateSetting = null;
+    try {
+        const value = (new Function('moment', `return ${date};`))(moment);
+        if (typeof value === 'string') {
+            dateSetting = moment(value);
+        }
+        else if (typeof value.toDate === 'function') {
+            dateSetting = moment(value.toDate().toUTCString());
+        }
+        else if (value instanceof Date) {
+            dateSetting = moment(value);
+        }
+    }
+    catch (e) {
+        return null;
+    }
+
+    if (!dateSetting) {
+        return null;
+    }
+
+    // Ensure this is a date.
+    if (!dateSetting.isValid()) {
+        return null;
+    }
+
     return dateSetting.toDate();
-  }
-
-  dateSetting = null;
-  try {
-    const value = (new Function('moment', `return ${date};`))(moment);
-    if (typeof value === 'string') {
-      dateSetting = moment(value);
-    }
-    else if (typeof value.toDate === 'function') {
-      dateSetting = moment(value.toDate().toUTCString());
-    }
-    else if (value instanceof Date) {
-      dateSetting = moment(value);
-    }
-  }
-  catch (e) {
-    return null;
-  }
-
-  if (!dateSetting) {
-    return null;
-  }
-
-  // Ensure this is a date.
-  if (!dateSetting.isValid()) {
-    return null;
-  }
-
-  return dateSetting.toDate();
 }
 
 export function isValidDate(date) {
-  return _.isDate(date) && !_.isNaN(date.getDate());
+    return _.isDate(date) && !_.isNaN(date.getDate());
 }
 
 export function getLocaleDateFormatInfo(locale) {
-  const formatInfo = {};
+    const formatInfo = {};
 
-  const day = 21;
-  const exampleDate = new Date(2017, 11, day);
-  const localDateString = exampleDate.toLocaleDateString(locale);
+    const day = 21;
+    const exampleDate = new Date(2017, 11, day);
+    const localDateString = exampleDate.toLocaleDateString(locale);
 
-  formatInfo.dayFirst = localDateString.slice(0, 2) === day.toString();
+    formatInfo.dayFirst = localDateString.slice(0, 2) === day.toString();
 
-  return formatInfo;
+    return formatInfo;
 }
 
 /**
@@ -724,32 +722,32 @@ export function getLocaleDateFormatInfo(locale) {
  * @return {string}
  */
 export function convertFormatToFlatpickr(format) {
-  return format
-    // Year conversion.
-    .replace(/y/g, 'Y')
-    .replace('YYYY', 'Y')
-    .replace('YY', 'y')
+    return format
+        // Year conversion.
+        .replace(/y/g, 'Y')
+        .replace('YYYY', 'Y')
+        .replace('YY', 'y')
 
-    // Month conversion.
-    .replace('MMMM', 'F')
-    .replace(/M/g, 'n')
-    .replace('nnn', 'M')
-    .replace('nn', 'm')
+        // Month conversion.
+        .replace('MMMM', 'F')
+        .replace(/M/g, 'n')
+        .replace('nnn', 'M')
+        .replace('nn', 'm')
 
-    // Day in month.
-    .replace(/d/g, 'j')
-    .replace('jj', 'd')
+        // Day in month.
+        .replace(/d/g, 'j')
+        .replace('jj', 'd')
 
-    // Day in week.
-    .replace('EEEE', 'l')
-    .replace('EEE', 'D')
+        // Day in week.
+        .replace('EEEE', 'l')
+        .replace('EEE', 'D')
 
-    // Hours, minutes, seconds
-    .replace('HH', 'H')
-    .replace('hh', 'h')
-    .replace('mm', 'i')
-    .replace('ss', 'S')
-    .replace(/a/g, 'K');
+        // Hours, minutes, seconds
+        .replace('HH', 'H')
+        .replace('hh', 'h')
+        .replace('mm', 'i')
+        .replace('ss', 'S')
+        .replace(/a/g, 'K');
 }
 
 /**
@@ -758,15 +756,15 @@ export function convertFormatToFlatpickr(format) {
  * @return {string}
  */
 export function convertFormatToMoment(format) {
-  return format
-    // Year conversion.
-    .replace(/y/g, 'Y')
-    // Day in month.
-    .replace(/d/g, 'D')
-    // Day in week.
-    .replace(/E/g, 'd')
-    // AM/PM marker
-    .replace(/a/g, 'A');
+    return format
+        // Year conversion.
+        .replace(/y/g, 'Y')
+        // Day in month.
+        .replace(/d/g, 'D')
+        // Day in week.
+        .replace(/E/g, 'd')
+        // AM/PM marker
+        .replace(/a/g, 'A');
 }
 
 /**
@@ -775,105 +773,105 @@ export function convertFormatToMoment(format) {
  * @returns {Array} - The input mask for the mask library.
  */
 export function getInputMask(mask) {
-  if (mask instanceof Array) {
-    return mask;
-  }
-  const maskArray = [];
-  maskArray.numeric = true;
-  for (let i = 0; i < mask.length; i++) {
-    switch (mask[i]) {
-      case '9':
-        maskArray.push(/\d/);
-        break;
-      case 'A':
-        maskArray.numeric = false;
-        maskArray.push(/[a-zA-Z]/);
-        break;
-      case 'a':
-        maskArray.numeric = false;
-        maskArray.push(/[a-z]/);
-        break;
-      case '*':
-        maskArray.numeric = false;
-        maskArray.push(/[a-zA-Z0-9]/);
-        break;
-      default:
-        maskArray.push(mask[i]);
-        break;
+    if (mask instanceof Array) {
+        return mask;
     }
-  }
-  return maskArray;
+    const maskArray = [];
+    maskArray.numeric = true;
+    for (let i = 0; i < mask.length; i++) {
+        switch (mask[i]) {
+            case '9':
+                maskArray.push(/\d/);
+                break;
+            case 'A':
+                maskArray.numeric = false;
+                maskArray.push(/[a-zA-Z]/);
+                break;
+            case 'a':
+                maskArray.numeric = false;
+                maskArray.push(/[a-z]/);
+                break;
+            case '*':
+                maskArray.numeric = false;
+                maskArray.push(/[a-zA-Z0-9]/);
+                break;
+            default:
+                maskArray.push(mask[i]);
+                break;
+        }
+    }
+    return maskArray;
 }
 
 export function matchInputMask(value, inputMask) {
-  if (!inputMask) {
-    return true;
-  }
-  for (let i = 0; i < inputMask.length; i++) {
-    const char = value[i];
-    const charPart = inputMask[i];
-
-    if (!(_.isRegExp(charPart) && charPart.test(char) || charPart === char)) {
-      return false;
+    if (!inputMask) {
+        return true;
     }
-  }
+    for (let i = 0; i < inputMask.length; i++) {
+        const char = value[i];
+        const charPart = inputMask[i];
 
-  return true;
+        if (!(_.isRegExp(charPart) && charPart.test(char) || charPart === char)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 export function getNumberSeparators(lang = 'en') {
-  const formattedNumberString = (12345.6789).toLocaleString(lang);
-  const delimeters = formattedNumberString.match(/..(.)...(.)../);
-  if (!delimeters) {
+    const formattedNumberString = (12345.6789).toLocaleString(lang);
+    const delimeters = formattedNumberString.match(/..(.)...(.)../);
+    if (!delimeters) {
+        return {
+            delimiter: ',',
+            decimalSeparator: '.'
+        };
+    }
     return {
-      delimiter: ',',
-      decimalSeparator: '.'
+        delimiter: (delimeters.length > 1) ? delimeters[1] : ',',
+        decimalSeparator: (delimeters.length > 2) ? delimeters[2] : '.',
     };
-  }
-  return {
-    delimiter: (delimeters.length > 1) ? delimeters[1] : ',',
-    decimalSeparator: (delimeters.length > 2) ? delimeters[2] : '.',
-  };
 }
 
 export function getNumberDecimalLimit(component) {
-  // Determine the decimal limit. Defaults to 20 but can be overridden by validate.step or decimalLimit settings.
-  let decimalLimit = 20;
-  const step = _.get(component, 'validate.step', 'any');
+    // Determine the decimal limit. Defaults to 20 but can be overridden by validate.step or decimalLimit settings.
+    let decimalLimit = 20;
+    const step = _.get(component, 'validate.step', 'any');
 
-  if (step !== 'any') {
-    const parts = step.toString().split('.');
-    if (parts.length > 1) {
-      decimalLimit = parts[1].length;
+    if (step !== 'any') {
+        const parts = step.toString().split('.');
+        if (parts.length > 1) {
+            decimalLimit = parts[1].length;
+        }
     }
-  }
 
-  return decimalLimit;
+    return decimalLimit;
 }
 
 export function getCurrencyAffixes({
-  currency = 'USD',
-  decimalLimit,
-  decimalSeparator,
-  lang,
-}) {
-  // Get the prefix and suffix from the localized string.
-  let regex = '(.*)?100';
-  if (decimalLimit) {
-    regex += `${decimalSeparator === '.' ? '\\.' : decimalSeparator}0{${decimalLimit}}`;
-  }
-  regex += '(.*)?';
-  const parts = (100).toLocaleString(lang, {
-    style: 'currency',
-    currency,
-    useGrouping: true,
-    maximumFractionDigits: decimalLimit,
-    minimumFractionDigits: decimalLimit
-  }).replace('.', decimalSeparator).match(new RegExp(regex));
-  return {
-    prefix: parts[1] || '',
-    suffix: parts[2] || ''
-  };
+                                       currency = 'USD',
+                                       decimalLimit,
+                                       decimalSeparator,
+                                       lang,
+                                   }) {
+    // Get the prefix and suffix from the localized string.
+    let regex = '(.*)?100';
+    if (decimalLimit) {
+        regex += `${decimalSeparator === '.' ? '\\.' : decimalSeparator}0{${decimalLimit}}`;
+    }
+    regex += '(.*)?';
+    const parts = (100).toLocaleString(lang, {
+        style: 'currency',
+        currency,
+        useGrouping: true,
+        maximumFractionDigits: decimalLimit,
+        minimumFractionDigits: decimalLimit
+    }).replace('.', decimalSeparator).match(new RegExp(regex));
+    return {
+        prefix: parts[1] || '',
+        suffix: parts[2] || ''
+    };
 }
 
 /**
@@ -884,46 +882,46 @@ export function getCurrencyAffixes({
  * @return {*}
  */
 export function fieldData(data, component) {
-  if (!data) {
-    return '';
-  }
-  if (!component || !component.key) {
-    return data;
-  }
-  if (component.key.includes('.')) {
-    let value = data;
-    const parts = component.key.split('.');
-    let key = '';
-    for (let i = 0; i < parts.length; i++) {
-      key = parts[i];
-
-      // Handle nested resources
-      if (value.hasOwnProperty('_id')) {
-        value = value.data;
-      }
-
-      // Return if the key is not found on the value.
-      if (!value.hasOwnProperty(key)) {
-        return;
-      }
-
-      // Convert old single field data in submissions to multiple
-      if (key === parts[parts.length - 1] && component.multiple && !Array.isArray(value[key])) {
-        value[key] = [value[key]];
-      }
-
-      // Set the value of this key.
-      value = value[key];
+    if (!data) {
+        return '';
     }
-    return value;
-  }
-  else {
-    // Convert old single field data in submissions to multiple
-    if (component.multiple && !Array.isArray(data[component.key])) {
-      data[component.key] = [data[component.key]];
+    if (!component || !component.key) {
+        return data;
     }
-    return data[component.key];
-  }
+    if (component.key.includes('.')) {
+        let value = data;
+        const parts = component.key.split('.');
+        let key = '';
+        for (let i = 0; i < parts.length; i++) {
+            key = parts[i];
+
+            // Handle nested resources
+            if (Object.prototype.hasOwnProperty.call(value, '_id')) {
+                value = value.data;
+            }
+
+            // Return if the key is not found on the value.
+            if (!Object.prototype.hasOwnProperty.call(value, key)) {
+                return;
+            }
+
+            // Convert old single field data in submissions to multiple
+            if (key === parts[parts.length - 1] && component.multiple && !Array.isArray(value[key])) {
+                value[key] = [value[key]];
+            }
+
+            // Set the value of this key.
+            value = value[key];
+        }
+        return value;
+    }
+    else {
+        // Convert old single field data in submissions to multiple
+        if (component.multiple && !Array.isArray(data[component.key])) {
+            data[component.key] = [data[component.key]];
+        }
+        return data[component.key];
+    }
 }
 
 /**
@@ -934,19 +932,19 @@ export function fieldData(data, component) {
  * @return {*}
  */
 export function delay(fn, delay = 0, ...args) {
-  const timer = setTimeout(fn, delay, ...args);
+    const timer = setTimeout(fn, delay, ...args);
 
-  function cancel() {
-    clearTimeout(timer);
-  }
+    function cancel() {
+        clearTimeout(timer);
+    }
 
-  function earlyCall() {
-    cancel();
-    return fn(...args);
-  }
+    function earlyCall() {
+        cancel();
+        return fn(...args);
+    }
 
-  earlyCall.timer = timer;
-  earlyCall.cancel = cancel;
+    earlyCall.timer = timer;
+    earlyCall.cancel = cancel;
 
-  return earlyCall;
+    return earlyCall;
 }

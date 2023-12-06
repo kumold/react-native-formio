@@ -13,7 +13,7 @@ describe('Fieldset', () => {
       'tableView': true,
       'legend': '',
       'components': [
-        components.textfeild,
+        components.textfield,
         components.password,
         components.phoneNumber
       ],

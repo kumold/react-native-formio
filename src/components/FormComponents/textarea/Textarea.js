@@ -5,7 +5,6 @@ import InputComponent from '../sharedComponents/Input';
 import styles from './styles';
 
 export default class Textarea extends InputComponent {
-
   constructor(props) {
     super(props);
     this.onChangeText = this.onChangeText.bind(this);
